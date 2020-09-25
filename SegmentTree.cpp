@@ -1,87 +1,103 @@
-/* Written by Shubhankit Bansal
-  Segment Tree Code for update range 
-  query for l to r sum and update a single value
-*/
-
 #include<bits/stdc++.h>
-#define int long long
 #define ll long long
+#define int long long
+#define mod1 1000000007
 using namespace std;
 
-ll build(ll a[],ll l,ll u,ll node,ll seg[]){
-    if(l==u){
-        seg[node]=a[l];
-        return seg[node];
+ll add1(ll x,ll y){
+    ll res=(x%mod1+y%mod1)%mod1;
+    return res;
+}
+
+ll sub(ll x,ll y){
+    ll res=0;
+    res=(x%mod1-y%mod1+mod1)%mod1;
+    return res;
+}
+
+ll mul(ll x,ll y){
+    ll res=0;
+    x=x%mod1;
+    while(y){
+        if(y&1)
+            res=(res+x)%mod1;
+        x=(x+x)%mod1;
+        y=y>>1;
+    }
+    return res;
+}
+
+ll power(ll x,ll y){
+    ll res=1;
+    x=x%mod1;
+    while(y){
+        if(y&1)
+            res=(res*x)%mod1;
+        x=(x*x)%mod1;
+        y=y>>1;
+    }
+    return res;
+}
+
+ll invflt(ll x){
+    return power(x,mod1-2);
+}
+
+ll div1(ll x,ll y){
+    ll y=inv(y);
+    return (x*y)%mod1;
+}
+
+void build(ll node,ll start,ll end,ll tree[],ll arr[]){
+    if(start==end){
+        tree[node]=arr[start];
     }
     else{
-        ll mid=(l+u)/2;
-        ll x=build(a,l,mid,2*node,seg);
-        ll y=build(a,mid+1,u,2*node+1,seg);
-        seg[node]=x+y;
-        return seg[node];
+        ll mid=(start+end)/2;
+        build(2*node,start,mid,tree,arr);
+        build(2*node+1,mid+1,end,tree,arr);
+        tree[node]=tree[2*node]+tree[2*node+1];
     }
 }
 
-ll query(ll seg[],ll l,ll u,ll node,ll start,ll end){
-    if(u<start  || l>end){
+void update(ll node,ll start,ll end,ll tree[],ll arr[],ll idx,ll val){
+    if(start==end){
+        arr[start]+=val;
+        tree[node]+=val;
+    }
+    else{
+        ll mid=(start+end)/2;
+        if(start<=idx && idx<=mid){
+            update(2*node,start,mid,tree,arr,idx,val);
+        }
+        else if(end>=idx && idx>mid){
+            update(2*node+1,mid+1,end,tree,arr,idx,val);
+        }
+        tree[node]=tree[2*node]+tree[2*node+1];
+    }
+}
+
+ll query(ll node,ll start,ll end,ll l,ll r){
+    if(r<start || end<l){
         return 0;
     }
-    else if(l<=start && u>=end){
-        return seg[node];
+    else if(l<=start && r>=end){
+        return tree[node];
     }
-    else{
-        ll mid;
-        mid=(start+end)/2;
-        ll x=query(seg,l,u,2*node,start,mid);
-        ll y=query(seg,l,u,2*node+1,mid+1,end);
-        return x+y;
-    }
+    ll mid=(start+end)/2;
+    ll left=query(2*node,start,mid,l,r);
+    ll right=query(2*node+1,mid+1,end,l,r);
+    return left+right;
 }
 
-ll update(ll index,ll value,ll seg[],ll node,ll l,ll u){
-    if(index<l || index>u){
-        return seg[node];
-    }
-    else if(l==index && u==index){
-        seg[node]=value;
-        return seg[node];
-    }
-    else{
-        ll mid=(l+u)/2;
-        ll x=update(index,value,seg,2*node,l,mid);
-        ll y=update(index,value,seg,2*node+1,mid+1,u);
-        seg[node]=x+y;
-        return seg[node];
-    }
-}
+void solve(){
 
-// void print(ll seg[]){
-//     for(ll i=1;i<20;i++){
-//         cout<<seg[i]<<" ";
-//     }
-//     cout<<endl;
-// }
+}
 
 signed main(){
-    ll t;
-    cin>>t;
-    while(t--){
-        ll n,q;
-        cin>>n>>q;
-        ll a[n+1],seg[1000000];
-        for(ll i=1;i<=n;i++){
-            cin>>a[i];
-        }
-        build(a,1,n,1,seg);
-        for(ll i=0;i<q;i++){
-            ll type,l,u;
-            cin>>type>>l>>u;
-            if(type==1){
-                cout<<query(seg,l,u,1,1,n)<<endl;
-            }
-            else{
-                update(l,u,seg,1,1,n);
-            }
-        }
+	ll t;
+	cin>>t;
+	while(t--){
+        solve();
     }
 }
